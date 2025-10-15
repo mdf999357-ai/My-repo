@@ -5,29 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group Manager Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0; padding: 0;
-            background: linear-gradient(135deg, #2e3192, #1b263b);
-            animation: bgShift 10s infinite alternate;
-            color: var(--tg-theme-text-color, #ffffff);
-            transition: background 0.3s, color 0.3s;
-            height: 100vh; overflow-y: auto;
-        }
-        @keyframes bgShift {
-            0% { background: linear-gradient(135deg, #2e3192, #1b263b); }
-            100% { background: linear-gradient(135deg, #1b263b, #2e3192); }
-        }
+        body { font-family: Arial; background: linear-gradient(135deg, #2e3192, #1b263b); animation: bgShift 10s infinite alternate; color: var(--tg-theme-text-color); transition: background 0.3s; height: 100vh; overflow-y: auto; margin: 0; padding: 0; }
+        @keyframes bgShift { 0% { background: linear-gradient(135deg, #2e3192, #1b263b); } 100% { background: linear-gradient(135deg, #1b263b, #2e3192); } }
         .container { max-width: 600px; margin: 0 auto; padding: 10px; }
         .tab-bar { display: flex; flex-wrap: wrap; justify-content: space-around; background: rgba(0,0,0,0.2); padding: 10px; position: fixed; bottom: 0; width: 100%; }
         .tab-button { flex: 1 1 100px; border: none; background: none; color: var(--tg-theme-button-text-color); font-size: 14px; padding: 5px; cursor: pointer; }
         .tab-button.active { border-bottom: 2px solid #fff; }
         .tab-content { display: none; padding: 20px; }
         .tab-content.active { display: block; }
-        button { background: var(--tg-theme-button-color, #0088cc); color: var(--tg-theme-button-text-color, #ffffff); padding: 10px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+        button { background: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); padding: 10px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
         input { padding: 10px; margin: 5px; border: none; border-radius: 5px; }
-        @media (max-width: 480px) { .container { padding: 5px; } }
     </style>
 </head>
 <body>
@@ -113,6 +103,19 @@
     <script>
         Telegram.WebApp.ready();
 
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDgE6Mtr8_kBVOhFATlcuOBo4K0_vs7wDk",
+            authDomain: "group-manager-74ada.firebaseapp.com",
+            projectId: "group-manager-74ada",
+            storageBucket: "group-manager-74ada.firebasestorage.app",
+            messagingSenderId: "1037630047909",
+            appId: "1:1037630047909:web:44af8791148825cd2baf4c",
+            measurementId: "G-K3M90QJJFE"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         // Tab Navigation
         function openTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -123,33 +126,36 @@
 
         // Add Group
         function addGroup() {
-            Telegram.WebApp.openTelegramLink('https://t.me/Hell?startgroup=true'); // अपने बॉट का नाम बदलें
+            Telegram.WebApp.openTelegramLink('https://t.me/Hell?startgroup=true'); // अपना बॉट नाम बदलें
             alert('ग्रुप में बॉट ऐड करें!');
         }
 
-        // Local Storage-based Functions (No Firebase/WebSocket)
+        // Firebase-based Functions
         function saveVerify() {
             const task = document.getElementById('verifyTask').value;
             if (task) {
-                localStorage.setItem('verifyTask', task);
-                document.getElementById('verifyStatus').innerText = 'स्थिति: सहेजा गया';
-                Telegram.WebApp.sendData(JSON.stringify({ type: 'verify', task }));
+                db.collection('settings').doc('verify').set({ task }).then(() => {
+                    document.getElementById('verifyStatus').innerText = 'स्थिति: सहेजा गया';
+                    Telegram.WebApp.sendData(JSON.stringify({ type: 'verify', task }));
+                }).catch(err => alert('त्रुटि: ' + err.message));
             } else alert('टास्क डालें!');
         }
 
         function saveWelcome() {
             const msg = document.getElementById('welcomeMsg').value;
             if (msg) {
-                localStorage.setItem('welcomeMsg', msg);
-                document.getElementById('welcomeStatus').innerText = 'स्थिति: सहेजा गया';
+                db.collection('settings').doc('welcome').set({ msg }).then(() => {
+                    document.getElementById('welcomeStatus').innerText = 'स्थिति: सहेजा गया';
+                }).catch(err => alert('त्रुटि: ' + err.message));
             } else alert('मैसेज डालें!');
         }
 
         function saveBuyBot() {
             const token = document.getElementById('buyToken').value;
             if (token) {
-                localStorage.setItem('buyToken', token);
-                document.getElementById('buyStatus').innerText = 'स्थिति: सहेजा गया';
+                db.collection('settings').doc('buyBot').set({ token }).then(() => {
+                    document.getElementById('buyStatus').innerText = 'स्थिति: सहेजा गया';
+                }).catch(err => alert('त्रुटि: ' + err.message));
             } else alert('टोकन डालें!');
         }
 
@@ -157,8 +163,9 @@
             const keyword = document.getElementById('autoKeyword').value;
             const response = document.getElementById('autoResponse').value;
             if (keyword && response) {
-                localStorage.setItem('autoResponses', JSON.stringify({ [keyword]: response }));
-                document.getElementById('autoStatus').innerText = 'स्थिति: सहेजा गया';
+                db.collection('settings').doc('autoResponses').set({ [keyword]: response }, { merge: true }).then(() => {
+                    document.getElementById('autoStatus').innerText = 'स्थिति: सहेजा गया';
+                }).catch(err => alert('त्रुटि: ' + err.message));
             } else alert('कीवर्ड और रिस्पॉन्स डालें!');
         }
 
@@ -166,24 +173,29 @@
             const msg = document.getElementById('scheduledMsg').value;
             const time = document.getElementById('scheduledTime').value;
             if (msg && time) {
-                localStorage.setItem('scheduled', JSON.stringify({ msg, time }));
-                document.getElementById('scheduledStatus').innerText = 'स्थिति: सहेजा गया';
+                db.collection('settings').doc('scheduled').set({ msg, time }).then(() => {
+                    document.getElementById('scheduledStatus').innerText = 'स्थिति: सहेजा गया';
+                }).catch(err => alert('त्रुटि: ' + err.message));
             } else alert('मैसेज और समय डालें!');
         }
 
         function saveModeration() {
             const keyword = document.getElementById('modKeyword').value;
             if (keyword) {
-                localStorage.setItem('modKeywords', JSON.stringify([...(JSON.parse(localStorage.getItem('modKeywords') || '[]')), keyword]));
-                document.getElementById('modStatus').innerText = 'स्थिति: सहेजा गया';
+                db.collection('settings').doc('moderation').update({
+                    keywords: firebase.firestore.FieldValue.arrayUnion(keyword)
+                }).then(() => {
+                    document.getElementById('modStatus').innerText = 'स्थिति: सहेजा गया';
+                }).catch(err => alert('त्रुटि: ' + err.message));
             } else alert('कीवर्ड डालें!');
         }
 
         function saveLevels() {
             const xp = document.getElementById('xpRate').value;
             if (xp) {
-                localStorage.setItem('xpRate', xp);
-                document.getElementById('levelsStatus').innerText = 'स्थिति: सहेजा गया';
+                db.collection('settings').doc('levels').set({ xpRate: Number(xp) }).then(() => {
+                    document.getElementById('levelsStatus').innerText = 'स्थिति: सहेजा गया';
+                }).catch(err => alert('त्रुटि: ' + err.message));
             } else alert('XP दर डालें!');
         }
 
@@ -192,21 +204,25 @@
         }
 
         function saveAutoClean() {
-            localStorage.setItem('autoClean', 'enabled');
-            document.getElementById('cleanStatus').innerText = 'स्थिति: एनेबल हुआ';
+            db.collection('settings').doc('autoClean').set({ enabled: true }).then(() => {
+                document.getElementById('cleanStatus').innerText = 'स्थिति: एनेबल हुआ';
+            }).catch(err => alert('त्रुटि: ' + err.message));
         }
 
-        // Load saved data on startup
-        window.onload = () => {
-            document.getElementById('verifyStatus').innerText = `स्थिति: ${localStorage.getItem('verifyTask') ? 'सहेजा गया' : 'लोड नहीं'}`;
-            document.getElementById('welcomeStatus').innerText = `स्थिति: ${localStorage.getItem('welcomeMsg') ? 'सहेजा गया' : 'लोड नहीं'}`;
-            document.getElementById('buyStatus').innerText = `स्थिति: ${localStorage.getItem('buyToken') ? 'सहेजा गया' : 'लोड नहीं'}`;
-            document.getElementById('autoStatus').innerText = `स्थिति: ${localStorage.getItem('autoResponses') ? 'सहेजा गया' : 'लोड नहीं'}`;
-            document.getElementById('scheduledStatus').innerText = `स्थिति: ${localStorage.getItem('scheduled') ? 'सहेजा गया' : 'लोड नहीं'}`;
-            document.getElementById('modStatus').innerText = `स्थिति: ${localStorage.getItem('modKeywords') ? 'सहेजा गया' : 'लोड नहीं'}`;
-            document.getElementById('levelsStatus').innerText = `स्थिति: ${localStorage.getItem('xpRate') ? 'सहेजा गया' : 'लोड नहीं'}`;
-            document.getElementById('cleanStatus').innerText = `स्थिति: ${localStorage.getItem('autoClean') === 'enabled' ? 'एनेबल हुआ' : 'लोड नहीं'}`;
-        };
+        // Load data on startup
+        db.collection('settings').onSnapshot((snapshot) => {
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if (doc.id === 'verify' && data.task) document.getElementById('verifyStatus').innerText = 'स्थिति: सहेजा गया';
+                if (doc.id === 'welcome' && data.msg) document.getElementById('welcomeStatus').innerText = 'स्थिति: सहेजा गया';
+                if (doc.id === 'buyBot' && data.token) document.getElementById('buyStatus').innerText = 'स्थिति: सहेजा गया';
+                if (doc.id === 'autoResponses' && Object.keys(data).length) document.getElementById('autoStatus').innerText = 'स्थिति: सहेजा गया';
+                if (doc.id === 'scheduled' && data.msg && data.time) document.getElementById('scheduledStatus').innerText = 'स्थिति: सहेजा गया';
+                if (doc.id === 'moderation' && data.keywords) document.getElementById('modStatus').innerText = 'स्थिति: सहेजा गया';
+                if (doc.id === 'levels' && data.xpRate) document.getElementById('levelsStatus').innerText = 'स्थिति: सहेजा गया';
+                if (doc.id === 'autoClean' && data.enabled) document.getElementById('cleanStatus').innerText = 'स्थिति: एनेबल हुआ';
+            });
+        }, (err) => alert('डेटा लोड में त्रुटि: ' + err.message));
     </script>
 </body>
 </html>
