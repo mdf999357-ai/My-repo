@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: Arial; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); text-align: center; padding: 20px; }
+        button { background: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); padding: 10px 20px; border: none; border-radius: 5px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>वेलकम टू माय मिनी ऐप!</h1>
+    <p>यह Telegram Mini App का उदाहरण है।</p>
+    <button id="showName">मेरा नाम दिखाओ</button>
+
+    <script>
+        Telegram.WebApp.ready();
+        document.getElementById('showName').addEventListener('click', () => {
+            const user = Telegram.WebApp.initDataUnsafe.user;
+            alert(`हेलो, ${user.first_name || 'यूजर'}!`);
+            Telegram.WebApp.close(); // ऑप्शनल: क्लोज करने के लिए
+        });
+    </script>
+</body>
+</html>
