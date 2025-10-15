@@ -3,25 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Mini App</title>
+    <title>Group Manager Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: Arial; background: var(--tg-theme-bg-color); color: var(--tg-theme-text-color); text-align: center; padding: 20px; }
-        button { background: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); padding: 10px 20px; border: none; border-radius: 5px; margin-top: 20px; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0; padding: 0;
+            background: linear-gradient(135deg, #2e3192, #1b263b);
+            animation: bgShift 10s infinite alternate;
+            color: var(--tg-theme-text-color, #ffffff);
+            transition: background 0.3s, color 0.3s;
+            height: 100vh; overflow-y: auto;
+        }
+        @keyframes bgShift {
+            0% { background: linear-gradient(135deg, #2e3192, #1b263b); }
+            100% { background: linear-gradient(135deg, #1b263b, #2e3192); }
+        }
+        .container { max-width: 600px; margin: 0 auto; padding: 10px; }
+        .tab-bar { display: flex; flex-wrap: wrap; justify-content: space-around; background: rgba(0,0,0,0.2); padding: 10px; position: fixed; bottom: 0; width: 100%; }
+        .tab-button { flex: 1 1 100px; border: none; background: none; color: var(--tg-theme-button-text-color); font-size: 14px; padding: 5px; cursor: pointer; }
+        .tab-button.active { border-bottom: 2px solid #fff; }
+        .tab-content { display: none; padding: 20px; }
+        .tab-content.active { display: block; }
+        button { background: var(--tg-theme-button-color, #0088cc); color: var(--tg-theme-button-text-color, #ffffff); padding: 10px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+        input { padding: 10px; margin: 5px; border: none; border-radius: 5px; }
+        @media (max-width: 480px) { .container { padding: 5px; } }
     </style>
 </head>
 <body>
-    <h1>वेलकम टू माय मिनी ऐप!</h1>
-    <p>यह Telegram Mini App का उदाहरण है।</p>
-    <button id="showName">मेरा नाम दिखाओ</button>
+    <div class="container">
+        <h1>ग्रुप मैनेजर Mini App</h1>
+        <button onclick="addGroup()">ग्रुप ऐड करें</button>
+        <div class="tab-bar">
+            <button class="tab-button active" onclick="openTab('verify')">Verify</button>
+            <button class="tab-button" onclick="openTab('welcome')">Welcome</button>
+            <button class="tab-button" onclick="openTab('buybot')">Buy Bot</button>
+            <button class="tab-button" onclick="openTab('autoresponse')">Auto Response</button>
+            <button class="tab-button" onclick="openTab('scheduled')">Scheduled Messages</button>
+            <button class="tab-button" onclick="openTab('moderation')">Moderation</button>
+            <button class="tab-button" onclick="openTab('levels')">Levels</button>
+            <button class="tab-button" onclick="openTab('utilities')">Utilities</button>
+            <button class="tab-button" onclick="openTab('autoclean')">Auto Clean</button>
+        </div>
+
+        <div id="verify" class="tab-content active">
+            <p>नए सदस्यों को वेरिफाई करने का टास्क सेट करें।</p>
+            <input type="text" id="verifyTask" placeholder="वेरिफिकेशन टास्क...">
+            <button onclick="saveVerify()">सेव करें</button>
+            <p id="verifyStatus">स्थिति: लोड नहीं</p>
+        </div>
+
+        <div id="welcome" class="tab-content">
+            <p>नए सदस्यों के लिए वेलकम मैसेज सेट करें।</p>
+            <input type="text" id="welcomeMsg" placeholder="वेलकम मैसेज...">
+            <button onclick="saveWelcome()">सेव करें</button>
+            <p id="welcomeStatus">स्थिति: लोड नहीं</p>
+        </div>
+
+        <div id="buybot" class="tab-content">
+            <p>टोकन खरीद अलर्ट सेट करें।</p>
+            <input type="text" id="buyToken" placeholder="टोकन नाम...">
+            <button onclick="saveBuyBot()">सेव करें</button>
+            <p id="buyStatus">स्थिति: लोड नहीं</p>
+        </div>
+
+        <div id="autoresponse" class="tab-content">
+            <p>कीवर्ड पर ऑटो रिस्पॉन्स सेट करें।</p>
+            <input type="text" id="autoKeyword" placeholder="कीवर्ड...">
+            <input type="text" id="autoResponse" placeholder="रिस्पॉन्स...">
+            <button onclick="saveAutoResponse()">सेव करें</button>
+            <p id="autoStatus">स्थिति: लोड नहीं</p>
+        </div>
+
+        <div id="scheduled" class="tab-content">
+            <p>शेड्यूल्ड मैसेज सेट करें।</p>
+            <input type="text" id="scheduledMsg" placeholder="मैसेज...">
+            <input type="datetime-local" id="scheduledTime">
+            <button onclick="saveScheduled()">सेव करें</button>
+            <p id="scheduledStatus">स्थिति: लोड नहीं</p>
+        </div>
+
+        <div id="moderation" class="tab-content">
+            <p>मॉडरेशन रूल्स सेट करें (वार्न, म्यूट, बैन)।</p>
+            <input type="text" id="modKeyword" placeholder="फिल्टर कीवर्ड...">
+            <button onclick="saveModeration()">सेव करें</button>
+            <p id="modStatus">स्थिति: लोड नहीं</p>
+        </div>
+
+        <div id="levels" class="tab-content">
+            <p>लेवलिंग सिस्टम सेट करें (XP, लीडरबोर्ड)।</p>
+            <input type="number" id="xpRate" placeholder="XP प्रति मैसेज...">
+            <button onclick="saveLevels()">सेव करें</button>
+            <p id="levelsStatus">स्थिति: लोड नहीं</p>
+        </div>
+
+        <div id="utilities" class="tab-content">
+            <p>यूटिलिटी टूल्स (जैसे कमांड्स, इंफो)।</p>
+            <button onclick="runUtility()">रन करें</button>
+            <p id="utilStatus">स्थिति: लोड नहीं</p>
+        </div>
+
+        <div id="autoclean" class="tab-content">
+            <p>ऑटो क्लीन सेट करें (जॉइन, लीव, कमांड्स रिमूव)।</p>
+            <button onclick="saveAutoClean()">एनेबल करें</button>
+            <p id="cleanStatus">स्थिति: लोड नहीं</p>
+        </div>
+    </div>
 
     <script>
         Telegram.WebApp.ready();
-        document.getElementById('showName').addEventListener('click', () => {
-            const user = Telegram.WebApp.initDataUnsafe.user;
-            alert(`हेलो, ${user.first_name || 'यूजर'}!`);
-            Telegram.WebApp.close(); // ऑप्शनल: क्लोज करने के लिए
-        });
+
+        // Tab Navigation
+        function openTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add('active');
+        }
+
+        // Add Group
+        function addGroup() {
+            Telegram.WebApp.openTelegramLink('https://t.me/Hell?startgroup=true'); // अपने बॉट का नाम बदलें
+            alert('ग्रुप में बॉट ऐड करें!');
+        }
+
+        // Local Storage-based Functions (No Firebase/WebSocket)
+        function saveVerify() {
+            const task = document.getElementById('verifyTask').value;
+            if (task) {
+                localStorage.setItem('verifyTask', task);
+                document.getElementById('verifyStatus').innerText = 'स्थिति: सहेजा गया';
+                Telegram.WebApp.sendData(JSON.stringify({ type: 'verify', task }));
+            } else alert('टास्क डालें!');
+        }
+
+        function saveWelcome() {
+            const msg = document.getElementById('welcomeMsg').value;
+            if (msg) {
+                localStorage.setItem('welcomeMsg', msg);
+                document.getElementById('welcomeStatus').innerText = 'स्थिति: सहेजा गया';
+            } else alert('मैसेज डालें!');
+        }
+
+        function saveBuyBot() {
+            const token = document.getElementById('buyToken').value;
+            if (token) {
+                localStorage.setItem('buyToken', token);
+                document.getElementById('buyStatus').innerText = 'स्थिति: सहेजा गया';
+            } else alert('टोकन डालें!');
+        }
+
+        function saveAutoResponse() {
+            const keyword = document.getElementById('autoKeyword').value;
+            const response = document.getElementById('autoResponse').value;
+            if (keyword && response) {
+                localStorage.setItem('autoResponses', JSON.stringify({ [keyword]: response }));
+                document.getElementById('autoStatus').innerText = 'स्थिति: सहेजा गया';
+            } else alert('कीवर्ड और रिस्पॉन्स डालें!');
+        }
+
+        function saveScheduled() {
+            const msg = document.getElementById('scheduledMsg').value;
+            const time = document.getElementById('scheduledTime').value;
+            if (msg && time) {
+                localStorage.setItem('scheduled', JSON.stringify({ msg, time }));
+                document.getElementById('scheduledStatus').innerText = 'स्थिति: सहेजा गया';
+            } else alert('मैसेज और समय डालें!');
+        }
+
+        function saveModeration() {
+            const keyword = document.getElementById('modKeyword').value;
+            if (keyword) {
+                localStorage.setItem('modKeywords', JSON.stringify([...(JSON.parse(localStorage.getItem('modKeywords') || '[]')), keyword]));
+                document.getElementById('modStatus').innerText = 'स्थिति: सहेजा गया';
+            } else alert('कीवर्ड डालें!');
+        }
+
+        function saveLevels() {
+            const xp = document.getElementById('xpRate').value;
+            if (xp) {
+                localStorage.setItem('xpRate', xp);
+                document.getElementById('levelsStatus').innerText = 'स्थिति: सहेजा गया';
+            } else alert('XP दर डालें!');
+        }
+
+        function runUtility() {
+            document.getElementById('utilStatus').innerText = 'स्थिति: रन हुआ (कस्टमाइज़ करें)';
+        }
+
+        function saveAutoClean() {
+            localStorage.setItem('autoClean', 'enabled');
+            document.getElementById('cleanStatus').innerText = 'स्थिति: एनेबल हुआ';
+        }
+
+        // Load saved data on startup
+        window.onload = () => {
+            document.getElementById('verifyStatus').innerText = `स्थिति: ${localStorage.getItem('verifyTask') ? 'सहेजा गया' : 'लोड नहीं'}`;
+            document.getElementById('welcomeStatus').innerText = `स्थिति: ${localStorage.getItem('welcomeMsg') ? 'सहेजा गया' : 'लोड नहीं'}`;
+            document.getElementById('buyStatus').innerText = `स्थिति: ${localStorage.getItem('buyToken') ? 'सहेजा गया' : 'लोड नहीं'}`;
+            document.getElementById('autoStatus').innerText = `स्थिति: ${localStorage.getItem('autoResponses') ? 'सहेजा गया' : 'लोड नहीं'}`;
+            document.getElementById('scheduledStatus').innerText = `स्थिति: ${localStorage.getItem('scheduled') ? 'सहेजा गया' : 'लोड नहीं'}`;
+            document.getElementById('modStatus').innerText = `स्थिति: ${localStorage.getItem('modKeywords') ? 'सहेजा गया' : 'लोड नहीं'}`;
+            document.getElementById('levelsStatus').innerText = `स्थिति: ${localStorage.getItem('xpRate') ? 'सहेजा गया' : 'लोड नहीं'}`;
+            document.getElementById('cleanStatus').innerText = `स्थिति: ${localStorage.getItem('autoClean') === 'enabled' ? 'एनेबल हुआ' : 'लोड नहीं'}`;
+        };
     </script>
 </body>
 </html>
