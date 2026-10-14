@@ -1,228 +1,247 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Group Manager Mini App</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js"></script>
-    <style>
-        body { font-family: Arial; background: linear-gradient(135deg, #2e3192, #1b263b); animation: bgShift 10s infinite alternate; color: var(--tg-theme-text-color); transition: background 0.3s; height: 100vh; overflow-y: auto; margin: 0; padding: 0; }
-        @keyframes bgShift { 0% { background: linear-gradient(135deg, #2e3192, #1b263b); } 100% { background: linear-gradient(135deg, #1b263b, #2e3192); } }
-        .container { max-width: 600px; margin: 0 auto; padding: 10px; }
-        .tab-bar { display: flex; flex-wrap: wrap; justify-content: space-around; background: rgba(0,0,0,0.2); padding: 10px; position: fixed; bottom: 0; width: 100%; }
-        .tab-button { flex: 1 1 100px; border: none; background: none; color: var(--tg-theme-button-text-color); font-size: 14px; padding: 5px; cursor: pointer; }
-        .tab-button.active { border-bottom: 2px solid #fff; }
-        .tab-content { display: none; padding: 20px; }
-        .tab-content.active { display: block; }
-        button { background: var(--tg-theme-button-color); color: var(--tg-theme-button-text-color); padding: 10px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
-        input { padding: 10px; margin: 5px; border: none; border-radius: 5px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Md Fareed Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #0f172a;
+      color: white;
+    }
+
+    nav {
+      background: #1e293b;
+      padding: 20px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid gray;
+      position:sticky;
+      top:0;
+    }
+
+    .logo {
+      font-weight: bold;
+      color: #38bdf8;
+      font-size: 20px;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 15px;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover {
+      color: #38bdf8;
+    }
+
+    section {
+      padding: 40px 20px;
+    }
+
+    h2 {
+      border-bottom: 2px solid #38bdf8;
+      display: inline-block;
+      padding-bottom: 5px;
+    }
+
+    .main {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .main h1 {
+      font-size: 32px;
+    }
+
+    .main span {
+      color: #38bdf8;
+    }
+
+    .btn {
+      background: #38bdf8;
+      color: black;
+      padding: 8px 15px;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    .profile-img-container {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 3px solid #38bdf8;
+      overflow: hidden;
+      background:black;
+      
+    }
+
+    .profile-img-container img {
+      width: 95%;
+      height: 110%;
+    }
+
+    .card {
+      background: #1e293b;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      margin-top: 10px;
+    }
+
+    .skills-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .skill-box {
+      background: #1e293b;
+      border: 1px solid gray;
+      padding: 10px 20px;
+      border-radius: 5px;
+    }
+
+    .skill-box i {
+      color: #38bdf8;
+      margin-right: 5px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: #1e293b;
+      margin-top: 20px;
+    }
+
+
+    .menu-btn {
+      display: none;
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    #menu-toggle:checked~.nav-links {
+      display: flex;
+    }
+
+    @media (max-width:700px) {
+      .main {
+        flex-direction: column-reverse;
+        text-align: center;
+      }
+
+      .menu-btn {
+        display: block;
+      }
+
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 50px;
+        right: 10px;
+        background: #1e293b;
+        padding: 15px;
+        border: 1px solid gray;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>ग्रुप मैनेजर Mini App</h1>
-        <button onclick="addGroup()">ग्रुप ऐड करें</button>
-        <div class="tab-bar">
-            <button class="tab-button active" onclick="openTab('verify')">Verify</button>
-            <button class="tab-button" onclick="openTab('welcome')">Welcome</button>
-            <button class="tab-button" onclick="openTab('buybot')">Buy Bot</button>
-            <button class="tab-button" onclick="openTab('autoresponse')">Auto Response</button>
-            <button class="tab-button" onclick="openTab('scheduled')">Scheduled Messages</button>
-            <button class="tab-button" onclick="openTab('moderation')">Moderation</button>
-            <button class="tab-button" onclick="openTab('levels')">Levels</button>
-            <button class="tab-button" onclick="openTab('utilities')">Utilities</button>
-            <button class="tab-button" onclick="openTab('autoclean')">Auto Clean</button>
-        </div>
 
-        <div id="verify" class="tab-content active">
-            <p>नए सदस्यों को वेरिफाई करने का टास्क सेट करें।</p>
-            <input type="text" id="verifyTask" placeholder="वेरिफिकेशन टास्क...">
-            <button onclick="saveVerify()">सेव करें</button>
-            <p id="verifyStatus">स्थिति: लोड नहीं</p>
-        </div>
+  <nav>
+    <div class="logo">Fareed</div>
+    <input type="checkbox" id="menu-toggle" hidden>
+    <label for="menu-toggle" class="menu-btn"><i class="fa-solid fa-bars"></i></label>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#education">Education</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
 
-        <div id="welcome" class="tab-content">
-            <p>नए सदस्यों के लिए वेलकम मैसेज सेट करें।</p>
-            <input type="text" id="welcomeMsg" placeholder="वेलकम मैसेज...">
-            <button onclick="saveWelcome()">सेव करें</button>
-            <p id="welcomeStatus">स्थिति: लोड नहीं</p>
-        </div>
-
-        <div id="buybot" class="tab-content">
-            <p>टोकन खरीद अलर्ट सेट करें।</p>
-            <input type="text" id="buyToken" placeholder="टोकन नाम...">
-            <button onclick="saveBuyBot()">सेव करें</button>
-            <p id="buyStatus">स्थिति: लोड नहीं</p>
-        </div>
-
-        <div id="autoresponse" class="tab-content">
-            <p>कीवर्ड पर ऑटो रिस्पॉन्स सेट करें।</p>
-            <input type="text" id="autoKeyword" placeholder="कीवर्ड...">
-            <input type="text" id="autoResponse" placeholder="रिस्पॉन्स...">
-            <button onclick="saveAutoResponse()">सेव करें</button>
-            <p id="autoStatus">स्थिति: लोड नहीं</p>
-        </div>
-
-        <div id="scheduled" class="tab-content">
-            <p>शेड्यूल्ड मैसेज सेट करें।</p>
-            <input type="text" id="scheduledMsg" placeholder="मैसेज...">
-            <input type="datetime-local" id="scheduledTime">
-            <button onclick="saveScheduled()">सेव करें</button>
-            <p id="scheduledStatus">स्थिति: लोड नहीं</p>
-        </div>
-
-        <div id="moderation" class="tab-content">
-            <p>मॉडरेशन रूल्स सेट करें (वार्न, म्यूट, बैन)।</p>
-            <input type="text" id="modKeyword" placeholder="फिल्टर कीवर्ड...">
-            <button onclick="saveModeration()">सेव करें</button>
-            <p id="modStatus">स्थिति: लोड नहीं</p>
-        </div>
-
-        <div id="levels" class="tab-content">
-            <p>लेवलिंग सिस्टम सेट करें (XP, लीडरबोर्ड)।</p>
-            <input type="number" id="xpRate" placeholder="XP प्रति मैसेज...">
-            <button onclick="saveLevels()">सेव करें</button>
-            <p id="levelsStatus">स्थिति: लोड नहीं</p>
-        </div>
-
-        <div id="utilities" class="tab-content">
-            <p>यूटिलिटी टूल्स (जैसे कमांड्स, इंफो)।</p>
-            <button onclick="runUtility()">रन करें</button>
-            <p id="utilStatus">स्थिति: लोड नहीं</p>
-        </div>
-
-        <div id="autoclean" class="tab-content">
-            <p>ऑटो क्लीन सेट करें (जॉइन, लीव, कमांड्स रिमूव)।</p>
-            <button onclick="saveAutoClean()">एनेबल करें</button>
-            <p id="cleanStatus">स्थिति: लोड नहीं</p>
-        </div>
+  <section class="main">
+    <div class="main-text">
+      <h1>Hi, I'm <span>Md Fareed</span></h1>
+      <p>Computer Science Student | Web Learner</p>
+      <a href="#contact" class="btn">Contact Me</a>
     </div>
+    <div class="profile-img-container">
+      <img src="Img.jpg" alt="Md Fareed">
+    </div>
+  </section>
 
-    <script>
-        Telegram.WebApp.ready();
+  <section id="about">
+    <h2>About Me</h2>
+    <div class="card">
+      <p>Hello! I am Md Fareed, studying Diploma in CSE at MANUU Polytechnic, Bangalore. I like reading and learning new
+        tech. Now I am learning HTML, CSS, JS and Three.js.</p>
+    </div>
+  </section>
 
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyDgE6Mtr8_kBVOhFATlcuOBo4K0_vs7wDk",
-            authDomain: "group-manager-74ada.firebaseapp.com",
-            projectId: "group-manager-74ada",
-            storageBucket: "group-manager-74ada.firebasestorage.app",
-            messagingSenderId: "1037630047909",
-            appId: "1:1037630047909:web:44af8791148825cd2baf4c",
-            measurementId: "G-K3M90QJJFE"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+  <section id="skills">
+    <h2>Skills</h2>
+    <div class="skills-grid">
+      <div class="skill-box"><i class="fa-solid fa-code"></i> C</div>
+      <div class="skill-box"><i class="fa-brands fa-python"></i> Python</div>
+      <div class="skill-box"><i class="fa-solid fa-database"></i> DBMS</div>
+      <div class="skill-box"><i class="fa-brands fa-html5"></i> HTML</div>
+      <div class="skill-box"><i class="fa-brands fa-css3-alt"></i> CSS</div>
+      <div class="skill-box"><i class="fa-brands fa-js"></i> JS</div>
+      <div class="skill-box"><i class="fa-solid fa-cube"></i> Three.js</div>
+    </div>
+  </section>
 
-        // Tab Navigation
-        function openTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tabName).classList.add('active');
-            document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add('active');
-        }
+  <section id="education">
+    <h2>Education</h2>
+    <div class="card">
+      <p><b>Diploma in CSE</b></p>
+      <p>MANUU Polytechnic, Bangalore</p>
+      <p>2026-2028, 3rd Semester</p>
+    </div>
+  </section>
 
-        // Add Group
-        function addGroup() {
-            Telegram.WebApp.openTelegramLink('https://t.me/Hell?startgroup=true'); // अपना बॉट नाम बदलें
-            alert('ग्रुप में बॉट ऐड करें!');
-        }
+  <section id="projects">
+    <h2>Projects</h2>
+    <div class="card">
+      <p><b>3D Web Game Development</b> - In Development</p>
+      <p>Making a 3D browser game using HTML, CSS, JS and Three.js</p>
+    </div>
+  </section>
 
-        // Firebase-based Functions
-        function saveVerify() {
-            const task = document.getElementById('verifyTask').value;
-            if (task) {
-                db.collection('settings').doc('verify').set({ task }).then(() => {
-                    document.getElementById('verifyStatus').innerText = 'स्थिति: सहेजा गया';
-                    Telegram.WebApp.sendData(JSON.stringify({ type: 'verify', task }));
-                }).catch(err => alert('त्रुटि: ' + err.message));
-            } else alert('टास्क डालें!');
-        }
+  <section id="contact">
+    <h2>Contact Me</h2>
+    <div class="card">
+      <p><i class="fa-solid fa-envelope"></i> mf292fareed@gmail.com</p>
+      <p><i class="fa-solid fa-phone"></i> +91 8797198066</p>
+      <p><i class="fa-solid fa-location-dot"></i> Bangalore, India</p>
+    </div>
+  </section>
 
-        function saveWelcome() {
-            const msg = document.getElementById('welcomeMsg').value;
-            if (msg) {
-                db.collection('settings').doc('welcome').set({ msg }).then(() => {
-                    document.getElementById('welcomeStatus').innerText = 'स्थिति: सहेजा गया';
-                }).catch(err => alert('त्रुटि: ' + err.message));
-            } else alert('मैसेज डालें!');
-        }
+  <footer>
+    <p>Md Fareed - ....</p>
+  </footer>
 
-        function saveBuyBot() {
-            const token = document.getElementById('buyToken').value;
-            if (token) {
-                db.collection('settings').doc('buyBot').set({ token }).then(() => {
-                    document.getElementById('buyStatus').innerText = 'स्थिति: सहेजा गया';
-                }).catch(err => alert('त्रुटि: ' + err.message));
-            } else alert('टोकन डालें!');
-        }
-
-        function saveAutoResponse() {
-            const keyword = document.getElementById('autoKeyword').value;
-            const response = document.getElementById('autoResponse').value;
-            if (keyword && response) {
-                db.collection('settings').doc('autoResponses').set({ [keyword]: response }, { merge: true }).then(() => {
-                    document.getElementById('autoStatus').innerText = 'स्थिति: सहेजा गया';
-                }).catch(err => alert('त्रुटि: ' + err.message));
-            } else alert('कीवर्ड और रिस्पॉन्स डालें!');
-        }
-
-        function saveScheduled() {
-            const msg = document.getElementById('scheduledMsg').value;
-            const time = document.getElementById('scheduledTime').value;
-            if (msg && time) {
-                db.collection('settings').doc('scheduled').set({ msg, time }).then(() => {
-                    document.getElementById('scheduledStatus').innerText = 'स्थिति: सहेजा गया';
-                }).catch(err => alert('त्रुटि: ' + err.message));
-            } else alert('मैसेज और समय डालें!');
-        }
-
-        function saveModeration() {
-            const keyword = document.getElementById('modKeyword').value;
-            if (keyword) {
-                db.collection('settings').doc('moderation').update({
-                    keywords: firebase.firestore.FieldValue.arrayUnion(keyword)
-                }).then(() => {
-                    document.getElementById('modStatus').innerText = 'स्थिति: सहेजा गया';
-                }).catch(err => alert('त्रुटि: ' + err.message));
-            } else alert('कीवर्ड डालें!');
-        }
-
-        function saveLevels() {
-            const xp = document.getElementById('xpRate').value;
-            if (xp) {
-                db.collection('settings').doc('levels').set({ xpRate: Number(xp) }).then(() => {
-                    document.getElementById('levelsStatus').innerText = 'स्थिति: सहेजा गया';
-                }).catch(err => alert('त्रुटि: ' + err.message));
-            } else alert('XP दर डालें!');
-        }
-
-        function runUtility() {
-            document.getElementById('utilStatus').innerText = 'स्थिति: रन हुआ (कस्टमाइज़ करें)';
-        }
-
-        function saveAutoClean() {
-            db.collection('settings').doc('autoClean').set({ enabled: true }).then(() => {
-                document.getElementById('cleanStatus').innerText = 'स्थिति: एनेबल हुआ';
-            }).catch(err => alert('त्रुटि: ' + err.message));
-        }
-
-        // Load data on startup
-        db.collection('settings').onSnapshot((snapshot) => {
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                if (doc.id === 'verify' && data.task) document.getElementById('verifyStatus').innerText = 'स्थिति: सहेजा गया';
-                if (doc.id === 'welcome' && data.msg) document.getElementById('welcomeStatus').innerText = 'स्थिति: सहेजा गया';
-                if (doc.id === 'buyBot' && data.token) document.getElementById('buyStatus').innerText = 'स्थिति: सहेजा गया';
-                if (doc.id === 'autoResponses' && Object.keys(data).length) document.getElementById('autoStatus').innerText = 'स्थिति: सहेजा गया';
-                if (doc.id === 'scheduled' && data.msg && data.time) document.getElementById('scheduledStatus').innerText = 'स्थिति: सहेजा गया';
-                if (doc.id === 'moderation' && data.keywords) document.getElementById('modStatus').innerText = 'स्थिति: सहेजा गया';
-                if (doc.id === 'levels' && data.xpRate) document.getElementById('levelsStatus').innerText = 'स्थिति: सहेजा गया';
-                if (doc.id === 'autoClean' && data.enabled) document.getElementById('cleanStatus').innerText = 'स्थिति: एनेबल हुआ';
-            });
-        }, (err) => alert('डेटा लोड में त्रुटि: ' + err.message));
-    </script>
 </body>
+
 </html>
