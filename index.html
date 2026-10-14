@@ -1,0 +1,248 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Md Fareed Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #0f172a;
+      color: white;
+    }
+
+    nav {
+      background: #1e293b;
+      padding: 20px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid gray;
+      position:sticky;
+      top:0;
+    }
+
+    .logo {
+      font-weight: bold;
+      color: #38bdf8;
+      font-size: 20px;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 15px;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover {
+      color: #38bdf8;
+    }
+
+    section {
+      padding: 40px 20px;
+    }
+
+    h2 {
+      border-bottom: 2px solid #38bdf8;
+      display: inline-block;
+      padding-bottom: 5px;
+    }
+
+    .main {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .main h1 {
+      font-size: 32px;
+    }
+
+    .main span {
+      color: #38bdf8;
+    }
+
+    .btn {
+      background: #38bdf8;
+      color: black;
+      padding: 8px 15px;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+
+    .profile-img-container {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 3px solid #38bdf8;
+      overflow: hidden;
+      background:black;
+      
+    }
+
+    .profile-img-container img {
+      width: 95%;
+      height: 110%;
+    }
+
+    .card {
+      background: #1e293b;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      margin-top: 10px;
+    }
+
+    .skills-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .skill-box {
+      background: #1e293b;
+      border: 1px solid gray;
+      padding: 10px 20px;
+      border-radius: 5px;
+    }
+
+    .skill-box i {
+      color: #38bdf8;
+      margin-right: 5px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: #1e293b;
+      margin-top: 20px;
+    }
+
+
+    .menu-btn {
+      display: none;
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    #menu-toggle:checked~.nav-links {
+      display: flex;
+    }
+
+    @media (max-width:700px) {
+      .main {
+        flex-direction: column-reverse;
+        text-align: center;
+      }
+
+      .menu-btn {
+        display: block;
+      }
+
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 50px;
+        right: 10px;
+        background: #1e293b;
+        padding: 15px;
+        border: 1px solid gray;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav>
+    <div class="logo">Fareed</div>
+    <input type="checkbox" id="menu-toggle" hidden>
+    <label for="menu-toggle" class="menu-btn"><i class="fa-solid fa-bars"></i></label>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#education">Education</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <section class="main">
+    <div class="main-text">
+      <h1>Hi, I'm <span>Md Fareed</span></h1>
+      <p>Computer Science Student | Web Learner</p>
+      <a href="#contact" class="btn">Contact Me</a>
+    </div>
+    <div class="profile-img-container">
+      <img src="me.jpg" alt="Md Fareed">
+    </div>
+  </section>
+
+  <section id="about">
+    <h2>About Me</h2>
+    <div class="card">
+      <p>Hello! I am Md Fareed, studying Diploma in CSE at MANUU Polytechnic, Bangalore. I like reading and learning new
+        tech. Now I am learning HTML, CSS, JS and Three.js.</p>
+    </div>
+  </section>
+
+  <section id="skills">
+    <h2>Skills</h2>
+    <div class="skills-grid">
+      <div class="skill-box"><i class="fa-solid fa-code"></i> C</div>
+      <div class="skill-box"><i class="fa-brands fa-python"></i> Python</div>
+      <div class="skill-box"><i class="fa-solid fa-database"></i> DBMS</div>
+      <div class="skill-box"><i class="fa-brands fa-html5"></i> HTML</div>
+      <div class="skill-box"><i class="fa-brands fa-css3-alt"></i> CSS</div>
+      <div class="skill-box"><i class="fa-brands fa-js"></i> JS</div>
+      <div class="skill-box"><i class="fa-solid fa-cube"></i> Three.js</div>
+    </div>
+  </section>
+
+  <section id="education">
+    <h2>Education</h2>
+    <div class="card">
+      <p><b>Diploma in CSE</b></p>
+      <p>MANUU Polytechnic, Bangalore</p>
+      <p>2026-2028, 3rd Semester</p>
+    </div>
+  </section>
+
+  <section id="projects">
+    <h2>Projects</h2>
+    <div class="card">
+      <p><b>3D Web Game Development</b> - In Development</p>
+      <p>Making a 3D browser game using HTML, CSS, JS and Three.js</p>
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2>Contact Me</h2>
+    <div class="card">
+      <p><i class="fa-solid fa-envelope"></i> mf292fareed@gmail.com</p>
+      <p><i class="fa-solid fa-phone"></i> +91 8797198066</p>
+      <p><i class="fa-solid fa-location-dot"></i> Bangalore, India</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>Md Fareed - ....</p>
+  </footer>
+
+</body>
+
+</html>
